@@ -1,0 +1,273 @@
+  
+.ui_tab{	
+background-color:rgb(204,204,204)!important;
+position:relative;
+height:auto;
+font-family: Tahoma, Geneva, sans-serif;
+font-size: 14px;
+line-height: 24px;
+font-weight: bold;
+color: #808080;
+text-decoration: none;
+}
+
+
+.ui_tab_h3{
+	font-size:large;
+	color:#000000;
+	margin-bottom:8px;
+	text-decoration:underline; 
+	
+}
+ 
+ .form_div{
+	background:rgb(244,244,244);
+	padding:20px;
+	
+	
+}
+  
+  .roundabout-holder {
+   
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      margin-top: 4em;
+      margin-left:2.5em;
+      margin-right:1em;
+      margin-bottom:4em;
+      height: 20em;
+      width: 25em;
+     
+      
+      
+    
+      
+   }
+   .roundabout-moveable-item {
+      height: 15em;
+      width: 15em;
+      cursor: pointer !important;
+     text-align:center;
+     vertical-align: middle !important;
+
+     
+   }
+ .roundabout-in-focus {
+   	  width: 20em;
+      cursor: pointer !important;
+      vertical-align: middle !important;
+     
+   }
+   
+ol.roundabout-holder li a{
+	text-decoration:none;
+	vertical-align: middle !important;
+   
+}
+
+ol.roundabout-holder li a span {
+	           
+				
+				display: block;
+				color:#778899;
+				height:100%;
+				opacity:0;
+				text-decoration:none !important;
+				cursor: pointer !important;
+				vertical-align: middle !important;
+				
+				
+			}
+			
+ol.roundabout-holder li a span:hover{
+	        text-align:center;
+	        width:100%;
+	        text-decoration:none !important;
+	        font-size:small;	       
+			color:white;
+	        visibility: visible;
+	        opacity:0.8;
+	        background-color:black;
+	        height:100%;
+	        cursor: pointer !important;
+	        vertical-align: middle !important;
+	        
+	        
+			}
+		
+
+
+.howto{
+	
+	display:inline-block;
+}
+
+.howto input{
+	float:right;
+	margin-left:15px;
+	
+}
+
+.howto span{
+	float:left;
+	color: black;
+	
+}
+
+div.demo_widget{
+	padding-left:300px!important;
+	
+}
+
+
+.update_button{
+	display:block;
+	margin-top:10px;
+	margin-left:250px;
+	
+}
+.form_div p{
+	
+	color:red; 
+}
+
+span.media_library a {
+	text-decoration:underline !important;
+	text-decoration:none;
+}
+
+span.media_library a:hover {
+	text-decoration:underline !important;
+	text-decoration:none;
+	font-style: italic;
+}
+
+
+ul.roundabout-holder-page {
+				list-style: none;
+				padding: 0;
+				margin:auto;
+				height: 36em;
+				list-style:none;
+				opacity: 1;
+				margin-top:-70px;
+			}
+ul.roundabout-holder-page li {
+				height: 25em;
+				width: 28em;
+				text-align: center;
+				cursor: pointer;
+				list-style:none;
+			}
+ul.roundabout-holder-page li img {
+					width: 100%;
+					list-style:none;
+				}
+ul.roundabout-holder-page li.roundabout-in-focus {
+					cursor: default;
+					list-style:none;
+				}
+ul.roundabout-holder-page li a span {
+				display: block;
+				font-size:large;
+				font-weight: bolder;
+				color:white;
+				margin-top:88%;
+				background:black;
+			}
+			
+ul.roundabout-holder-page li a span:hover{
+			font-size:120%;
+			color:#E6E6E6;
+			}
+		
+
+.table_div{	
+background-color:rgb(204,204,204)!important;
+position:relative;
+height:auto;
+font-family: Tahoma, Geneva, sans-serif;
+font-size: 14px;
+line-height: 24px;
+font-weight: bold;
+color: #808080;
+text-decoration: none;
+margin-top:10px;
+width:1060px !important;
+
+}
+
+.emptyAlert{
+	margin-top:-20px;
+	color: red !important;
+	font-size: small !important;
+	
+}
+
+
+.demo_div_h3
+{
+	font-size:large;
+	color:#000000;
+	margin-bottom:8px;
+	text-decoration:underline; 
+}
+.table_div h3{
+	font-size:large;
+	color:#000000;
+	margin-bottom:8px;
+	text-decoration:underline; 
+	}
+	
+.carousel_widget_table{
+	width:100%;
+	text-align:center;
+	background:#E6E6E6;
+	
+}
+
+.carousel_widget_table tr{
+	background:#DCDCDC;
+}
+
+.carousel_widget_table thead{
+	text-align:center !important;
+	
+}
+
+.carousel_widget_table tr:hover{
+	background:white;
+}
+
+td.row_delete a{
+	text-decoration:none;
+	color:red;
+	
+}
+
+td.row_delete a:hover{
+	text-decoration:none;
+	color:red;
+	font-size:150%;
+	
+}
+
+table.carousel_widget_table th{
+	text-align:center;
+	height:50px !important;
+	font-weight:bolder;
+	
+}
+
+
+td.rowId{
+	width:20px;
+	
+}
+
+.form_enable{
+	font-size:x-small;
+	color:#000000 !important;
+	
+}
