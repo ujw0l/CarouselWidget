@@ -3,17 +3,270 @@
 Plugin Name: Carousel widget
 Plugin URI: 
 Description: Roundabout carosel widget
-Version: 1.1.0
+Version: 2.0.0
 Author: Ujwol Bastakoti
 Author URI:
+text-domain : carousel-widget
 License: GPLv2
 */
 
-wp_register_script( 'roundAboutShapeJquery', plugins_url('js/jquery.roundabout-shapes.min.js',__FILE__ ));
-wp_register_script( 'roundAboutJquery', plugins_url('js/jquery.roundabout.js',__FILE__ ));
-wp_register_script( 'easingJquery', plugins_url('js/jquery.easing.js',__FILE__ ));
-wp_register_style( 'carouselWidgetCss', plugins_url('css/carouselwidget.css',__FILE__ )); //register css for plugin
-wp_register_style( 'jqueryUiCss', plugins_url('css/jquery-ui.css',__FILE__ )); //register jquery ui css
+
+class carouselWidgetPlugin{
+
+	public function __construct(){
+
+	register_activation_hook(__FILE__,array($this,'create_url_table') );
+	register_deactivation_hook(__FILE__,array($this, 'delete_url_table') );
+	self::add_required_actions();
+	add_action( 'wp_enqueue_scripts', array($this, 'frontend_enqueue_script') );
+	
+
+	}
+
+
+public function frontend_enqueue_script(){
+wp_enqueue_script('frontend_carousel_library_js', plugins_url('js/carousel.js',__FILE__ ),array(),'',true);
+wp_add_inline_script( 'frontend_carousel_library_js', "if(null != document.querySelector('#inpage_carousel')){  if(document.querySelector('#inpage_carousel').getAttribute('data-auto-play') == 'true'){ var autoPlayThis = true; }else{var autoPlayThis = false;} ; new ctcCarousel('#inpage_carousel', {autoPlay: autoPlayThis,autoPlayInterval: 3000,autoPlaySelector:'#inpage_carousel'});}" );
+
+}	
+
+public function carousel_enqueue_script(){
+
+wp_enqueue_media(); 
+wp_enqueue_script('ctc_overlay_viewer_js', plugins_url('js/ctc_overlay.js',__FILE__ ),array(),'',false);
+wp_enqueue_script('carousel_library_js', plugins_url('js/carousel.js',__FILE__ ),array(),'',true);
+wp_enqueue_script('carousel_script', plugins_url('js/carousel_widget.js',__FILE__ ),array(),'',true);
+wp_enqueue_style( 'ctc_overlay_viewer_css', plugins_url('css/ctc_overlay_style.css',__FILE__ ),array(),'',false);
+wp_add_inline_script( 'carousel_library_js', "new ctcCarousel('#inpage_carousel', {autoPlay:false,autoPlayInterval: 3000,autoPlaySelector:'#inpage_carousel'});" );
+
+ }
+
+ public function add_required_actions(){
+	add_action('admin_menu', array($this, 'carousel_widget_admin_menu') );
+	add_action( 'admin_enqueue_scripts',array($this,'carousel_enqueue_script') );
+	add_action( 'wp_ajax_add_carousel_item', array($this , 'add_carousel_item') );
+	add_action( 'wp_ajax_delete_carousel_item', array($this , 'delete_carousel_item') );
+	add_shortcode( 'inpage_carousel', array($this, 'in_page_carousel' ) );
+ }
+ 
+
+public function create_url_table(){
+    global $wpdb;
+    $table_name = $wpdb->prefix."url_table";
+   $sql = "CREATE TABLE `". $table_name."`(
+	`id` mediumint(9) NOT NULL AUTO_INCREMENT,
+	`imageurl` varchar(250) NOT NULL,
+	`url` varchar(250) NOT NULL,
+	`site` varchar(100),
+	PRIMARY KEY (`id`),
+    UNIQUE KEY `url` (`url`)) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;";
+
+   $wpdb->query($sql);
+
+}
+
+public function delete_url_table(){
+    $table_name = $wpdb->prefix."url_table";
+$sql = "DROP TABLE ".$tableName.";";
+$wpdb->query($sql);
+}
+
+		
+// function to add menu setting page 
+public function carousel_widget_admin_menu() {
+
+					if ( is_admin() ):
+						add_menu_page(
+										'Carousel widget', 
+										'Carousel widget', 
+										'administrator',
+										'carousel_widget', 
+										array($this,'carousel_widget_admin_page'),
+										'dashicons-slides',
+										'50'
+									);
+					endif;
+		    
+}
+
+//
+public function carousel_widget_admin_page(){
+        $activeTab = isset( $_GET[ 'tab' ] ) ? $_GET[ 'tab' ] : 'carousel_settings_tab';
+       
+        ?>
+                                     <h1 class="dashicons-before dashicons-format-gallery" >Carousel Settings</h1>   
+                                        <h2 class="nav-tab-wrapper ctcMainNavTab">
+                                        <a href="?page=carousel_widget&tab=carousel_settings_tab" class="dashicons-before dashicons-admin-generic nav-tab <?php echo $activeTab == 'carousel_settings_tab' ? 'nav-tab-active' : ''; ?> "> Settings / Info </a>
+										<a  href="?page=carousel_widget&tab=carousel_images_list" class="dashicons-before dashicons-menu-alt nav-tab <?php echo $activeTab == 'carousel_images_list' ? 'nav-tab-active' : ''; ?>"> Item List</a>
+										  <a  href="?page=carousel_widget&tab=carousel_demo_admin" class="dashicons-before dashicons-images-alt  nav-tab <?php echo $activeTab == 'carousel_demo_admin' ? 'nav-tab-active' : ''; ?>"> Demo</a>
+                                      </h2>
+                                                            
+        <?php   
+    
+	switch ( $activeTab  ):
+
+		case 'carousel_settings_tab' :
+		self::carouselSettingTabContent('add_slide');
+		break;
+		case 'carousel_images_list':
+			self::carouselImageList();
+		break;
+		case 'carousel_demo_admin':
+		   self::admin_carousel_demo();
+		break;
+	endswitch;	
+ 
+}
+
+
+public function admin_carousel_demo(){
+echo '<h2> Carousel Demo</h2>';
+$this->in_page_carousel(array());
+
+}
+
+public function carouselSettingTabContent(){
+
+ ?>
+<fieldset style="border:1px dotted rgba(0,0,0,1);width:45%;float:left;display:inline-block;margin-top:20px;">
+ <legend align="center" class="dashicons-before dashicons-plus">Add Item to Carousel</legend> 
+		<div class="form_div" style="padding:5%;" >
+        <form id= "carousel_add_image" class="update_form" method="POST" action=" " >  
+           <div> <label for="image_url" >*Image URL: </label> 
+		 	  <input id="image_url" style="margin-left:18px;" required type="url" size="40"  name="imageurl" value="" >
+ 			 <span id="carousel_widget_media"  id="carousel_widget_media" style="cursor:pointer;" onmouseenter = "this.style.color= 'rgba(242, 120,75, 1)'" onmouseleave = "this.style.color= ''" class="dashicons-before dashicons-admin-media" href="javaScript:void(0);"><span>
+		</div>
+			<div><label for="site_url">*Site URL &nbsp;&nbsp;: </label> 
+			<input id="site_url" style="margin-left:22px;" required type="url"  size="40" name="url" value=""></div>
+			<div><label for="site_name">*Site Name: </label> 
+			<input id="site_name" style="margin-left:20px;" type="text" required  size ="30" name="site" value="" ></div>
+           <div><?=submit_button('Add Image','primary','add_carousel_image')?></div>
+        </form>  
+</div>
+</fieldset >
+
+
+<fieldset  style="border:1px dotted rgba(0,0,0,1);width:40%;float:left;display:inline-block;margin-left:100px;margin-top:20px;">
+
+ <legend class="dashicons-before dashicons-editor-ul" align="center">Notes: </legend>
+     <ol>
+       <li > Use high resolution images for better result.
+        	<i><br/>Media->Select Image OR use external image URL</i>
+	  </li>
+      <li> Do not use filename with too many characters.</li>
+      <li> Duplicate entry will be rejecte by the plugin.</li>
+      <li> To display carousel on page use shortcode [inpage_carousel].</li>
+     <li>  To add custom height and/or width  [inpage_carousel heigth="custom height inpx" width="custom width in px"] </li>
+	 <li>  To set carousel on autoplay use  [inpage_carousel auto_play="true" ] </li>
+	 <li>To set height , width and autoplay of wodget, to settings of carousel widget.</li>
+      <li>Enjoy! More cool stuffs to follow.</li>
+  </ol>
+
+</fieldset>
+
+
+ <?php
+
+}
+
+
+public function carouselImageList(){
+ 
+ global $wpdb;
+ 	$table_name = $wpdb->prefix."url_table";
+ 	$sql = "SELECT * FROM `".$table_name."`;";
+	$result = $wpdb->get_results($sql,ARRAY_A );
+	 ?>
+ 	<div class='table_div'>
+ 	
+<table class='carousel_widget_table wp-list-table widefat fixed media striped' style="text-align:center;">
+<tr style='font-weight:bolder;' >
+		<td>No</td><td>Image</td><td>URL</td><td>Site Name</td><td>Delete</td>
+</tr>
+<?php
+ 	$a = 1;
+ 	foreach ($result as $row):
+ 
+ ?>
+ 		<tr id="carousel_item_row_<?=$row['id']?>" >
+		 <td style='width:5%;' class='rowId'><?=$a?></td>
+		 <td style='width:40%;' onmouseenter="new ctcOverlayViewer(this);">
+		 		<img style="cursor:pointer;width:60px;height:60px;" src='<?=$row['imageurl']?>' title='<?=$row['site']?>' >
+		 </td>
+		 <td style='width:10%;'><a href='<?=$row['url']?>' target="_blank" >URL</a></td>
+		 <td style='width:30%;'><?=$row['site']?></td>
+ 		<td  style='width:15%;'>
+		 <span style="cursor:pointer;color:rgba(0,0,0,1);" onmouseleave= 'this.style.color="rgba(0,0,0,1)"' onmouseenter='this.style.color="rgba(242, 38, 19, 1)"' data-item-id="<?=$row['id']?>" class="dashicons-before dashicons-no-alt carousel_delete_item"><span></td>
+		 </tr>
+		 <?php
+ 		$a++;
+	 endforeach;
+ 	echo"</table></div>";
+ }
+ 
+
+ public function add_carousel_item(){
+		if(empty($_POST["imageurl"]) || empty($_POST['url']) || empty($_POST['site']) ):
+		echo __('Please fill in the all required field','carousel-widget');
+
+		else: 
+			global $wpdb;
+				$insert = $wpdb->insert( 
+					$wpdb->prefix."url_table", 
+					array('imageurl'=> $_POST["imageurl"],"url"=>$_POST['url'],'site'=>$_POST['site'])
+				);
+
+				if( $wpdb->insert_id > 0 ):
+					echo json_encode( array('true', __('Item Sucessfully added.','carousel-widget') ) );
+				else:
+					echo json_encode( array('false',__("Item couldn't be added.",'carousel-widget') ) );
+				endif;	
+		endif;	
+		wp_die();
+ }
+
+public function delete_carousel_item(){
+		global $wpdb;
+
+		// Using where formatting.
+		$row_count = $wpdb->delete( $wpdb->prefix."url_table", array( 'id' => $_POST['rowId'] ), array( '%d' ) );
+		if($row_count >0 ):
+			echo json_encode(array('true', __('Item sucessfully deleted.','crousel-widget' ),$_POST['rowId'] ));
+		else: 
+			echo json_encode(array('false', __("Item couldn't be deleted.",'crousel-widget' ) ));
+		endif;	
+		wp_die();
+ }
+
+
+public function in_page_carousel($atts){
+$base = '';	
+if(is_admin() ):
+	$screen = get_current_screen();
+	$base =  $screen->parent_base;
+endif;
+
+if( $base == 'carousel_widget' || !is_admin() ) :
+	global $wpdb; 
+	$height =  isset($atts['height']) ? $atts['height'] : '600';
+	$width = isset( $atts['width'] ) ? $atts['width'] : '1300';
+	$auto_play =  isset( $atts['auto_play'] ) ? $atts['auto_play'] : 'false';
+    $table_name = $wpdb->prefix."url_table";
+    $sql = "SELECT * FROM `".$table_name."` ;";
+	 $result = $wpdb->get_results($sql,ARRAY_A );
+ 	echo "<div id ='inpage_carousel' data-auto-play='{$auto_play}'  class='inpage_carousel' style='opacity:0; height:{$height}px;width:{$width}px; '>"; 
+	foreach ($result as $row): 
+ 	    		echo "<img src='{$row ['imageurl']}' title='{$row['site']}' data-site-url='{$row['url']}'  />"; 			
+	endforeach;
+   echo "</div>";
+endif;
+ 	
+ }
+
+}
+
+
+//Carousel Widget part
 
 class carousel_widget extends WP_Widget {
 
@@ -22,61 +275,12 @@ class carousel_widget extends WP_Widget {
 	 		'carousel_widget', // Base ID
 			'Carousel Widget', // Name
 			array( 'description' => __( 'Carousel Widget', 'text_domain' ), ) // Args
+			
 		);
-	}
-	
-	public function display_carousel()
-	{
-		global $wpdb;
-		
-		wp_enqueue_script('roundAboutJquery');
-		wp_enqueue_script('roundAboutShapeJquery');
-		wp_enqueue_style('carouselWidgetCss');
-		
-	?>
-	<script type="text/javascript" >
-	 var $jq=jQuery.noConflict();
-			$jq(document).ready(function() {
-				$jq('ol.roundabout-holder').roundabout({
-					shape: 'rollerCoaster',
-					easing:"swing",
-					duration:0,
-			         autoplay: true,
-			         autoplayDuration: 4000,
-			         autoplayPauseOnHover: true,
-			         minOpacity:0.9,
-			         minScale:0.4
-				
-			        });
-			});//end of the jquery animation
 
-			
-		
-		</script>
 	
-	<?php 
-	
-		
-		$table_name = $wpdb->prefix."url_table";
-		
-		$sql = "SELECT * FROM `".$table_name."` order by RAND() LIMIT 5;";
-		
-		$result = $wpdb->get_results($sql,ARRAY_A );
-		
-		echo"<ol class='roundabout-holder'>";
-		foreach ($result as $row)
-		{
-			
-			echo"<li style='background-image:url(".$row ['imageurl']."); background-repeat:no-repeat; background-size:100% 100%;' id='roundabout-moveable-item'>";
-			//echo"<a target='_blank' href='".$row['url']."'><span>".$row['site']."</span></li></a>";
-		}
-		echo "</ol>";
-		
-		?>
-		
-<?php 		
-		
 	}
+	
 
 /**
 	 * Front-end display of widget.
@@ -87,17 +291,31 @@ class carousel_widget extends WP_Widget {
 	 * @param array $instance Saved values from database.
 	 */
 	public function widget( $args, $instance ) {
+	global $wpdb;	
+	wp_add_inline_script( 'frontend_carousel_library_js', "if(null != document.querySelector('#carousel_widget')){  if(document.querySelector('#carousel_widget').getAttribute('data-auto-play') == 'true'){ var autoPlayThis = true; }else{var autoPlayThis = false;} ; new ctcCarousel('#carousel_widget', {autoPlay: autoPlayThis,autoPlayInterval: 3000,autoPlaySelector:'#carousel_widget'});}" );
+
 		extract( $args );
 		$title = apply_filters( 'widget_title', $instance['title'] );
-		
+		$height = isset($instance['carousel_height']) ? esc_attr($instance['carousel_height']) : '400px';
+		$width = isset($instance['carousel_width']) ? esc_attr($instance['carousel_width']) : '400px';
+		$auto_play = isset($instance['carousel_auto_play']) ? 'true' : 'false';
+
 		echo $before_widget;
 		if ( ! empty( $title ) )
 			echo $before_title . $title . $after_title;
-		//echo __( 'Carousel Widget!', 'text_domain'); 
-			//echo "This section will contain contents of widget";	
-			
-		$carousel = $this->display_carousel();
+
+		$table_name = $wpdb->prefix."url_table";
+		$sql = "SELECT * FROM `".$table_name."`;";
+		$result = $wpdb->get_results($sql,ARRAY_A );
+		echo "<div id ='carousel_widget' data-auto-play='{$auto_play}'  class='inpage_carousel' style='opacity:0; height:{$height}px;width:{$width}px; '>"; 
+			foreach ($result as $row): 
+ 	    		 echo "<img src='{$row ['imageurl']}' title='{$row['site']}' data-site-url='{$row['url']}'  />"; 			
+			endforeach;
+   echo "</div>";
+	
 		echo $after_widget;
+
+
 	}
 //contents for backend widget
 
@@ -121,15 +339,27 @@ class carousel_widget extends WP_Widget {
 			$title = __( 'Carousel', 'text_domain' );
 		}
 		
-		
-		//$form =	carousel_widget_backend_form();
-		//echo($form);
 		?>
 		<p>
 		<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:' ); ?></label> 
-		
 		<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
 		</p>
+		<p>
+				<label for="<?php echo $this->get_field_id( 'carousel_height' ); ?>"><?php _e( 'Height:' ); ?> <i> px</i></label> 
+				<input class="widefat" id="<?php echo $this->get_field_id( 'carousel_height' ); ?>" name="<?php echo $this->get_field_name( 'carousel_height' ); ?>" type="number" value="<?php echo esc_attr( $instance['carousel_height' ] ); ?>" />
+		    </p>
+		   <p>
+				<label for="<?php echo $this->get_field_id( 'carousel_width' ); ?>"><?php _e( 'Width:' ); ?> <i> px</i></label> 
+				
+				<input class="widefat" id="<?php echo $this->get_field_id( 'carousel_width' ); ?>" name="<?php echo $this->get_field_name( 'carousel_width' ); ?>" type="number" value="<?php echo esc_attr( $instance['carousel_width' ] ); ?>" />
+		    </p>
+		    <p>
+				<?php $auto_play =  '1' == $instance['carousel_auto_play' ] ? 'checked':'' ; ?>
+				<label for="<?php echo $this->get_field_id( 'carousel_auto_play' ); ?>"><?php _e( 'Autoplay slides :' ); ?></label>
+				<input <?= $auto_play?> class="widefat" id="<?php echo $this->get_field_id( 'carousel_auto_play' ); ?>" name="<?php echo $this->get_field_name( 'carousel_auto_play' ); ?>" type="checkbox"  value="1" />
+		    </p>
+
+		
 		<p>
 		
 		<?php 
@@ -148,442 +378,40 @@ class carousel_widget extends WP_Widget {
 	public function update( $new_instance, $old_instance ) {
 		$instance = array();
 		$instance['title'] = strip_tags( $new_instance['title'] );
+		$instance['carousel_height'] = strip_tags( $new_instance['carousel_height'] );
+		$instance['carousel_width'] = strip_tags( $new_instance['carousel_width'] );
+		$instance['carousel_auto_play'] = strip_tags( $new_instance['carousel_auto_play'] );
        return $instance;
 	}
 	
 }//end of class carousel_widget
-// register carousel widget
-add_action( 'widgets_init', create_function( '', 'register_widget( "carousel_widget" );' ) );
 
-//function to create url table
-function create_url_table()
-
-{
-    global $wpdb;
-    $table_name = $wpdb->prefix."url_table";
-
-
-   $sql = "CREATE TABLE `". $table_name."`(
-	`id` mediumint(9) NOT NULL AUTO_INCREMENT,
-	`imageurl` varchar(250) NOT NULL,
-	`url` varchar(250) NOT NULL,
-	`site` varchar(100),
-	PRIMARY KEY (`id`),
-    UNIQUE KEY `url` (`url`)) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;";
-
-   $wpdb->query($sql);
-
+/*function resgiter widget as plguin*/
+function register_carousel_widget(){
+    register_widget( "carousel_widget" );
 }
 
-register_activation_hook(__FILE__,'create_url_table');
+add_action( 'widgets_init', 'register_carousel_widget' );
 
 
-/*runs when you remove plugin */
-register_uninstall_hook(__FILE__,'delete_url_table');
-function delete_url_table(){
-    $table_name = $wpdb->prefix."url_table";
-$sql = "DROP TABLE ".$tableName.";";
-$wpdb->query($sql);
-}
+new carouselWidgetPlugin();
 
 
-//function to delete row from table
-if($_GET['action']== 'carousel_widget_update_table')
-{ 
 
-$action = carousel_widget_update_table($_GET['id']);
-	
-}
 
-function carousel_widget_update_table($id)
-{
-	global $wpdb;
 
-$table_name = $wpdb->prefix."url_table";
-$sql = "DELETE FROM $table_name WHERE id= $id;";
 
-$result = $wpdb->query($sql);
-if($result==1)
-{
-   header("Location: " . $_SERVER["HTTP_REFERER"]);
-}
-else
-{
-	
-}
-}//end of function carousel_widget_update_table
 
-//update database table with new portfolio item
-if(($_POST['carousel_widget_update']==true)) 
-{
-function carousel_widget_update($post)
-{
-	global $wpdb;
-	$table_name = $wpdb->prefix."url_table";
-	if(empty($post['url'])||empty($post['imageurl'])||empty($post['site']))
-	{
-		?>
-		<script type="text/javascript">
-		alert("Please avoid  Illegal Activities!");
-		
-		</script>
-	<?php		
-	}
-	else{
-		
-		$check = array('http','https');
-		$http = explode("://",$post['url']);
+
+
+
+
+
+
 		
 		
-	 if (in_array($http[0],$check)) {
-	 	
-	 	
-	 	$url = $post['url'];
-		
-	}
-	else
-	{
-		$url = "http://".$post['url'];
-		echo($url);
-		
-	}
-	
-	//var_dump($post);
-	
-	$wpdb->insert($table_name,
-	       
-			array('imageurl'=>$post['imageurl'],'url'=>$url,  'site'=>$post[ 'site']),
-	
-			array('%s','%s'));
-	}
-  }
-}
 
-
-
-
-
-//when the form is updated
-if ( $_POST['carousel_widget_update'] == 'true' ) {
-	carousel_widget_update($_POST);
-}
-
-
-//load data with ajax 
-add_action('admin_print_scripts', 'ui_ajax_tab_javascript');
-
-function ui_ajax_tab_javascript() {
-
-
-?>
-<script type="text/javascript" src ='http://code.jquery.com/jquery-1.9.1.min.js'></script>
-<script type="text/javascript" >
-jQuery(document).ready(function($){
-jQuery('a.ajax_true').click(function(){
-
-		//var value = $(this).text();
-		var aj = $(this).attr('ajax');
-        
-		//alert(aj);
-		 var data = {
-				 action : aj
-	             //admindata: value
-				};
-		 $(this).removeAttr('ajax');
-		// since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php
-			jQuery.post(ajaxurl,data , function(response) {
-				var divclass = '.'+aj;
-				
-				$(divclass).append(response);
-			});
-});
-})
-</script>
-<?php
-}
-
-
-
-
-
-function carousel_widget_settings()
-		{
-			wp_enqueue_script('jquery');
-			wp_enqueue_style('carouselWidgetCss');
-			add_thickbox();//call built in function for thickbox
-		?>
-<script type="text/javascript">			
-jQuery(document).ready(function(){
-
-  jQuery(".update_form ").keyup(function(){	
-		
-	var inputVal = new Array();
-	var i =0;
-	
-	jQuery(".update_form input[type=text]").each(function() {
-        inputVal[i] = jQuery.trim(jQuery(this).val());
-        i++;
-           });
-	var emptyField = jQuery.inArray("",inputVal);
-
-	
-	  if(emptyField === -1)
-	   {
-		  
-		   jQuery("#update_button").removeAttr("disabled");
-		   jQuery(".form_enable").remove(); 
-	   }
-
-    });
-
-})
-</script>
-<h3 class="ui_tab_h3">Add Item to Carousel</h3> 
-		<div class="form_div" >
-        
-  	
-        <form class="update_form" method="POST" action="" > 
-            <input type="hidden" name="carousel_widget_update" value="true" />  
-            <label class="howto"><span> *Image URL:</span> <input type="text" size="40"  name="imageurl"/></label><span class="media_library"><a href="upload.php?TB_iframe=true" class="thickbox">Media</a></span><br/>
-			<label class="howto"><span>*Site URL &nbsp;&nbsp;: </span> <input type="text"  size="40" name="url"/></label><br/>
-			<label class="howto"><span>*Site Name: </span><input type="text"  size ="30" name="site"/></label><br/>
-            <label class="howto_button"><button disabled id="update_button" type="submit"  name="submit" value="Update" class="button">Update</button></label>
-        </form>  
-        <p class="form_enable">Button will enable once all fields are filled</p> 
-         <p class="emptyAlert"  title="Alert!" ><br/>&nbsp;&nbsp;&nbsp;&nbsp;* Fields cannot be empty.</p>
-<div>
-    <h3>Notes: </h3>
-     
-     <ol>
-       <li > Use high resolution images for better result.
-        <font style='color:black;font-size:x-small;'><br/>Media->Edit copy 'File Url' OR use external image URL</font></li>
-      <li> Do not use filename with too many characters.</li>
-      <li> To display carousel on page use shortcode [inpage_carousel].</li>
-      <li> To display carousel widget on page use shortcode [inpage_carousel_widget].</li>
-      <li> To Rate Review and Report Bug <a href="http://wordpress.org/support/view/plugin-reviews/carousel-widget?TB_iframe=true" class='thickbox' >Click Here</a> </li>
-      <li> If updating please also update file url to full image url "http://....../abc.jpg"  </li>
-      <li>Enjoy! More cool stuffs to follow.</li>
-      
-  </ol>
-  </div>
-</div>
-       
-    
-    
-    <?php 
-   
-}
-
-
-
-
-//function to display setting options and  table of contents most probably demo 
- function carousel_widget_admin_page()
- {
- 	
- 	wp_enqueue_script('roundAboutJquery');
- 	wp_enqueue_script('roundAboutShapeJquery');
- 	//wp_enqueue_style('carouselWidgetCss');
- 	//wp_enqueue_script('jquery');
- 	wp_enqueue_script('jquery-ui-tabs');//jquery ui tabs
- 	wp_enqueue_style('jqueryUiCss');//jquery ui css
- 	?>
- 	
-<script type="text/javascript">
-jQuery(document).ready(function() {
-	 jQuery( "#tabs" ).tabs();	
-})
- 
- </script>	
- 	
- 	<div class ="wrap">
- 	<div id="icon-plugins" class="icon32"></div>
- 	<h2>Carousel Widget</h2>
- 	<br/>
- 	<div id="tabs" style="width:96%;">
- 	
- 	
- 	<ul>
- 	 <li ><a id="tab_1" href="#tab-1" >Form</a></li>
- 	<li > <a id="tab_2" class="ajax_true" href="#tab-2"  ajax="display_url_table">Media List</a></li>
- 	<li  ><a id="tab_3" class="ajax_true" href="#tab-3" ajax="inpage_carousel">Demo-Carousel</a></li>
- 	<li  ><a id="tab_4" class="ajax_true" href="#tab-4" ajax="carousel_widget">Demo-Widget</a></li>
- 	</ul>
- 	
- 	    <div id="tab-1" class="ui_tab" >
- 	 
- 	    <?php carousel_widget_settings();?>
- 	   
- 	  </div>
- 	  <div id="tab-2" class="ui_tab display_url_table">
- 	   <h3 class="demo_div_h3">List of the items on Carousel </h3>
- 	  </div>
- 	  <div id="tab-3"  class="ui_tab inpage_carousel" >
- 	     <h3 class="demo_div_h3">Circular Carousel Demo</h3>
- 	  
- 	  </div> 
- 	  <div id="tab-4"  class="ui_tab carousel_widget" >
- 	       <h3 class="demo_div_h3">Carousel Widget Demo</h3>
- 	  
- 	  </div> 
- </div>
-</div> 	 	
-<?php 
- 	
- 	
- 	
- }
- 
-		
- 
- 
- /* Ajax actions on the setting section */
- 
- //ajax call to display widget
- add_action('wp_ajax_carousel_widget', 'carousel_widget_callback');
- 
- //widget  call back function for ajax requeet
- function carousel_widget_callback(){
- 	//call the class caousel_widget
- 	$obj = new carousel_widget();
- 	
- 	
- 	echo '<div class="demo_widget">';
-    $obj->display_carousel();
-    echo '</div>';
-    die();
-  }
-  
-  //function to create carousel widget on page
-  function carousel_widget_shortcode()
-  {
-  	//call the class caousel_widget
-  	$obj = new carousel_widget();
-  	
-  	
-  	echo '<div class="demo_widget">';
-  	$obj->display_carousel();
-  	echo '</div>';
-  }
-    add_shortcode('inpage_carousel_widget','carousel_widget_shortcode');
- 
- 
- //function for in page carousel
- function in_page_carousel()
- {
- 
- 	global $wpdb;
- 	wp_enqueue_script('jquery');
- 	wp_enqueue_script('easingJquery');
- 	wp_enqueue_script('roundAboutJquery');
- 	wp_enqueue_script('roundAboutShapeJquery');
- 	wp_enqueue_style('carouselWidgetCss');
- 
- 	?>
- 					<script type="text/javascript" >
- 					 var $jq=jQuery.noConflict();
- 							$jq(document).ready(function() {
- 								$jq('ul.roundabout-holder-page').roundabout({
- 									easing:"swing",
- 									duration:0
- 									
- 									});
- 							});//end of the jquery animation
- 				
- 						
- 						</script>
- 					
- 					<?php 
- 					
- 						
- 						$table_name = $wpdb->prefix."url_table";
- 						
- 						$sql = "SELECT * FROM `".$table_name."` ;";
- 						
- 						$result = $wpdb->get_results($sql,ARRAY_A );
- 						echo '<div>';
- 						echo"<ul class='roundabout-holder-page'>";
- 						foreach ($result as $row)
- 						{
- 							
- 	    					echo"<li style='background-image:url(".$row ['imageurl']."); background-repeat:no-repeat; background-size:100% 100%;' id='roundabout-moveable-item'>";
- 							echo"<a target='_blank' href='".$row['url']."'><span>".$row['site']."</span></li></a>";
- 						}
- 						echo "</ul></div>";
- 						
- 						
- 				
- 			}
- 			add_shortcode( 'inpage_carousel', 'in_page_carousel' );
- 
- 
- 
- 	//ajax call back function for inpage carousel
- 	add_action('wp_ajax_inpage_carousel', 'inpage_carousel_function');
- 
- 	function inpage_carousel_function()
- 	{
- 		$circular_carousel = in_page_carousel();
- 		die();
- 	}
- 
- 
- 
- 
- //ajax call back function for table of items 
- add_action('wp_ajax_display_url_table', 'display_url_table_callback');
- 
- function display_url_table_callback()
- {
- 	wp_enqueue_script('jquery');
- 
- 
- 	global $wpdb;
- 	add_thickbox();//call built in function for thickbox
- 
- 
- 	$table_name = $wpdb->prefix."url_table";
- 	$sql = "SELECT * FROM `".$table_name."`;";
- 	$result = $wpdb->get_results($sql,ARRAY_A );
- 	echo "<div class='table_div'>";
- 	
- 	echo"<table class='carousel_widget_table wp-list-table widefat fixed media' align='center'><tr style='font-weight:bolder;' align='center'><th>No</th><th>Image</th><th>URL</th><th>Site Name</th><th>Delete</th></tr>";
- 	$a = 1;
- 	foreach ($result as $row)
- 	{
- 
- 
- 		echo "<tr><td  class='rowId'>".$a."</td><td style='text-decoration:underline;'><a  href='".$row['imageurl']."TB_iframe=true&height=auto&width=auto' title='".$row['site']."' class='thickbox'> <img src='".$row['imageurl']."'  width='60' height='60' class='attachment-80x60'></a></td><td style='text-decoration:underline;'><a href='".$row['url']."?TB_iframe=true&width=600&height=550' class='thickbox'>URL</a></td><td>".$row['site']."</td>";
- 		echo "<td class='row_delete'><a href='?action=carousel_widget_update_table&id=".$row['id']."' onclick='return showNotice.warn();' >X<a></td></tr>";
- 
- 		$a++;
- 	}
- 	echo"</table></div>";
- 	die();
- }
- 
-		
-		
-//add option on admin panel settings
-		
-		if ( is_admin() ){
-		
-		   
-			/* Call the html code */
-			
-			add_action('admin_menu', 'carousel_widget_admin_menu');
-			
-			
-		}
-		
-	// function to add menu setting page 
-		function carousel_widget_admin_menu() {
-		    
-		    add_menu_page('Carousel widget', 'Carousel widget', 'administrator','carousel_widget', 'carousel_widget_admin_page');
-		    
-		}
 		
 		
 
 	
-?>
