@@ -1,23 +1,18 @@
 === Carousel Widget ===
 Contributors: ujw0l
-Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=N3MXYNZBFKZ8E
-Tags: roundabout,carousel, widget, portfolio 
+Tags: carousel, widget, portfolio 
 Requires at least: 3.4+
-Tested up to: 4.9.6
-Stable tag: 1.1.0
+Tested up to: 5.2
+Stable tag: 2.0.0
 License: GPLv2
 
-Plugin that provides users option to display carousel widget for sidebar and carousel for page
+Plugin that provides users option to display carousel widget for sidebar where user can add custom link for the site.
 
 == Description ==
 
-This plugin lets you to display carousel widget on sidebar with the themes that supports sidebar (it does not work properly on footer). Right now it is on auto play only mode, with fixed height and width and movement interval.
+This plugin lets you to display carousel widget on sidebar with the themes that supports sidebar (it does not work properly on footer). You can set custom height, width and autoplay through widget settings.
 
-It also lets users to add the bigger carousel on the page. However it is not set on auto play. The image moves on once user click the other images and image also has the link which redirects user to site where developer wishes.
-
-I wish to add options to customize the widget and frontend display of the carousel on later versions.
-
-Note: This plugin is based on Roundabout jQuery plugin     
+It also lets users to add the bigger carousel on the page. User can navigate to next and previous slide. You can set custom height, custom width and autoplay. 
 
 == Installation ==
 
@@ -26,6 +21,8 @@ Note: This plugin is based on Roundabout jQuery plugin
 3. A new "Carousel Widget" will be available under Appearance > Widgets, where you can add it to your sidebar
 4. At the Setting section on dashboard ‘Carousel Widget’ will appear where developer can add images and information they wish to display on carousel.  
 5.To add carousel on page use shortcode [inpage_carousel].
+6. To add custom height and/or width  [inpage_carousel heigth="custom height inpx" width="custom width in px"]
+7. To set carousel on autoplay use  [inpage_carousel auto_play="true" ] ;
 
 = Uninstall =
 
@@ -65,4 +62,10 @@ You can use this plugin to display images on sidebar(auto play) and on page
 * Lots of minor bug fixes
 * more featurs to follow in future releases
 * You might need change some of the CSS manually to make it work with your theme. 
+
+= 2.0.0 =
+* Roundabout jQuery removed
+* Runs on carousel library written invanilla js
+* Better Admin Uni
+* User can choose height width and auto play option 
 
