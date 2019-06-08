@@ -32,20 +32,17 @@ It also lets users to add the bigger carousel on the page. User can navigate to 
 
 == Frequently Asked Questions ==
 
-= Why can’t I customize it? =
-
-This is first release I wish to make it more customizable on future releases.
-
-
 = Where can I use this plugin? =
 
-You can use this plugin to display images on sidebar(auto play) and on page
+You can use this plugin to display images on sidebar and on page with option to autoplay.
 
 == Screenshots ==
 
 1.	Screenshot of the carousel
 2.	Screenshot of widget
-3.	Screenshot of Backend
+3.	Screenshot of settings/info section
+4.  Screenshot of Item list on carousel
+5.  Screenshot of carousel demo in backend
 
 == Changelog ==
 
