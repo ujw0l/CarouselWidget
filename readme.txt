@@ -3,7 +3,7 @@ Contributors: ujw0l
 Tags: carousel, widget, portfolio 
 Requires at least: 3.4+
 Tested up to: 5.2
-Stable tag: 2.0.0
+Stable tag: 2.0.1
 License: GPLv2
 
 Plugin that provides users option to display carousel widget for sidebar where user can add custom link for the site.

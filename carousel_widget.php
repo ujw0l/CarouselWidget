@@ -3,9 +3,9 @@
 Plugin Name: Carousel widget
 Plugin URI: 
 Description: Roundabout carosel widget
-Version: 2.0.0
+Version: 2.0.1
 Author: Ujwol Bastakoti
-Author URI:
+Author URI: http://ujwolbastakoti.wordpress.com
 text-domain : carousel-widget
 License: GPLv2
 */
@@ -248,9 +248,9 @@ endif;
 
 if( $base == 'carousel_widget' || !is_admin() ) :
 	global $wpdb; 
-	$height =  isset($atts['height']) ? $atts['height'] : '600';
-	$width = isset( $atts['width'] ) ? $atts['width'] : '1300';
-	$auto_play =  isset( $atts['auto_play'] ) ? $atts['auto_play'] : 'false';
+	$height =  !empty($atts['height']) ? $atts['height'] : '600';
+	$width = !empty( $atts['width'] ) ? $atts['width'] : '1300';
+	$auto_play =  'true'== $atts['auto_play'] ? $atts['auto_play'] : 'false';
     $table_name = $wpdb->prefix."url_table";
     $sql = "SELECT * FROM `".$table_name."` ;";
 	 $result = $wpdb->get_results($sql,ARRAY_A );
@@ -296,9 +296,9 @@ class carousel_widget extends WP_Widget {
 
 		extract( $args );
 		$title = apply_filters( 'widget_title', $instance['title'] );
-		$height = isset($instance['carousel_height']) ? esc_attr($instance['carousel_height']) : '400px';
-		$width = isset($instance['carousel_width']) ? esc_attr($instance['carousel_width']) : '400px';
-		$auto_play = isset($instance['carousel_auto_play']) ? 'true' : 'false';
+		$height = !empty($instance['carousel_height']) ? esc_attr($instance['carousel_height']) : '400';
+		$width = !empty($instance['carousel_width']) ? esc_attr($instance['carousel_width']) : '400';
+		$auto_play = '1' === $instance['carousel_auto_play'] ? 'true' : 'false';
 
 		echo $before_widget;
 		if ( ! empty( $title ) )
