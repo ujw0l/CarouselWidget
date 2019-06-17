@@ -3,7 +3,7 @@
 Plugin Name: Carousel widget
 Plugin URI: 
 Description: Roundabout carosel widget
-Version: 2.0.1
+Version: 2.0.2
 Author: Ujwol Bastakoti
 Author URI: http://ujwolbastakoti.wordpress.com
 text-domain : carousel-widget
@@ -20,7 +20,6 @@ class carouselWidgetPlugin{
 	self::add_required_actions();
 	add_action( 'wp_enqueue_scripts', array($this, 'frontend_enqueue_script') );
 	
-
 	}
 
 
@@ -66,7 +65,8 @@ public function create_url_table(){
 }
 
 public function delete_url_table(){
-    $table_name = $wpdb->prefix."url_table";
+ global $wpdb;
+$table_name = $wpdb->prefix."url_table";
 $sql = "DROP TABLE ".$tableName.";";
 $wpdb->query($sql);
 }
