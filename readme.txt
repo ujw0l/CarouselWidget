@@ -3,7 +3,7 @@ Contributors: ujw0l
 Tags: carousel, widget, portfolio 
 Requires at least: 3.4+
 Tested up to: 5.2
-Stable tag: 2.0.1
+Stable tag: 2.0.2
 License: GPLv2
 
 Plugin that provides users option to display carousel widget for sidebar where user can add custom link for the site.
@@ -38,9 +38,9 @@ You can use this plugin to display images on sidebar and on page with option to 
 
 == Screenshots ==
 
-1.	Screenshot of the carousel
-2.	Screenshot of widget
-3.	Screenshot of settings/info section
+1.  Screenshot of the carousel
+2.  Screenshot of widget
+3.  Screenshot of settings/info section
 4.  Screenshot of Item list on carousel
 5.  Screenshot of carousel demo in backend
 
@@ -66,3 +66,5 @@ You can use this plugin to display images on sidebar and on page with option to 
 * Better Admin Uni
 * User can choose height width and auto play option 
 
+= 2.0.2 =
+*Deactivation bug fix
