@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: Carousel widget
-Plugin URI: 
+Plugin URI: https://github.com/ujw0l/CarouselWidget
 Description: Roundabout carosel widget
 Version: 2.0.2
 Author: Ujwol Bastakoti
-Author URI: http://ujwolbastakoti.wordpress.com
+Author URI: http://ujw0l.github.io/
 text-domain : carousel-widget
 License: GPLv2
 */

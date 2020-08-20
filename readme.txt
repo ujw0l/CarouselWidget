@@ -2,7 +2,7 @@
 Contributors: ujw0l
 Tags: carousel, widget, portfolio 
 Requires at least: 3.4+
-Tested up to: 5.2
+Tested up to: 5.5
 Stable tag: 2.0.2
 License: GPLv2
 
