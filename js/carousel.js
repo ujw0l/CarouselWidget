@@ -70,7 +70,7 @@ class ctcCarousel {
         let leftNav = document.createElement('div');
         leftNav.id = 'ctcCarouselLeftNav-' + carouselNum;
 
-        leftNav.style = `height:${navButtonHeight}px;opacity:0;text-align:bottom;margin-top:${(elHeight -navButtonHeight)/2}px;float:left;color:rgba(0,0,0,0.7);display:flex;font-size:${fontSize}px;width${navButtonWidth}px;background-color:rgba(255, 255 , 255, 1);`;
+        leftNav.style = `height:${navButtonHeight}px;opacity:0;text-align:bottom;margin-top:${(elHeight - navButtonHeight) / 2}px;float:left;color:rgba(0,0,0,0.7);display:flex;font-size:${fontSize}px;width${navButtonWidth}px;background-color:rgba(255, 255 , 255, 1);`;
         leftNav.innerHTML = '<span title="Previous" id= "leftNav-' + carouselNum + '" ><span style="vertical-align:text-bottom;">&#8249;<br></span></span>';
 
         let rightNav = document.createElement('div');
@@ -102,11 +102,11 @@ class ctcCarousel {
                 }
 
                 let siteUrlDiv = document.createElement('div');
-                siteUrlDiv.style = `max-width:90%;max-height:25%;opacity:0;display:inline-block;padding:0.2% 0.5% 0.2%;border-radius:5%;border:1px solid rgba(255,255,255,0.7);background-color:rgba(0,0,0,0.5);color:rgba(255,255,255,1);`;
+                siteUrlDiv.style = `text-align:center;max-width:100%;max-height:25%;opacity:0;display:block;padding:0.2% 0.5% 0.2%;background-color:rgba(0,0,0,0.5);color:rgba(255,255,255,1);`;
 
                 let siteUrl = document.createElement('a');
                 siteUrl.id = 'ctcCarouseLSiteLink-' + carouselNum;
-                siteUrl.style = 'width:100%;text-align:center;color:rgba(255,255,255,1);width:100%;text-align:center;';
+                siteUrl.style = 'right:0;top:0;color:rgba(255,255,255,1);text-align:center;';
                 siteUrl.innerHTML = img.getAttribute('title');
                 siteUrl.href = img.getAttribute('data-site-url');
                 siteUrl.target = '_blank';

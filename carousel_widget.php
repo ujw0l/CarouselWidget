@@ -25,7 +25,8 @@ class carouselWidgetPlugin{
 
 public function frontend_enqueue_script(){
 wp_enqueue_script('frontend_carousel_library_js', plugins_url('js/carousel.js',__FILE__ ),array(),'',true);
-wp_add_inline_script( 'frontend_carousel_library_js', "if(null != document.querySelector('#inpage_carousel')){  if(document.querySelector('#inpage_carousel').getAttribute('data-auto-play') == 'true'){ var autoPlayThis = true; }else{var autoPlayThis = false;} ; new ctcCarousel('#inpage_carousel', {autoPlay: autoPlayThis,autoPlayInterval: 3000,autoPlaySelector:'#inpage_carousel'});}" );
+wp_enqueue_script('frontend_image_carousel_js', plugins_url('js/image-carousel.js',__FILE__ ),array(),'',true);
+wp_add_inline_script( 'frontend_image_carousel_js', "window.addEventListener('load',()=>{if(null != document.querySelector('#inpage_carousel')){  new imageCarousel('#inpage_carousel',{callBack:el=>el.style.opacity = '1'}); } })" );
 
 }	
 
@@ -33,10 +34,11 @@ public function carousel_enqueue_script(){
 
 wp_enqueue_media(); 
 wp_enqueue_script('ctc_overlay_viewer_js', plugins_url('js/ctc_overlay.js',__FILE__ ),array(),'',false);
-wp_enqueue_script('carousel_library_js', plugins_url('js/carousel.js',__FILE__ ),array(),'',true);
+wp_enqueue_script('backend_image_carousel_js', plugins_url('js/image-carousel.js',__FILE__ ),array(),'',true);
 wp_enqueue_script('carousel_script', plugins_url('js/carousel_widget.js',__FILE__ ),array(),'',true);
 wp_enqueue_style( 'ctc_overlay_viewer_css', plugins_url('css/ctc_overlay_style.css',__FILE__ ),array(),'',false);
-wp_add_inline_script( 'carousel_library_js', "new ctcCarousel('#inpage_carousel', {autoPlay:false,autoPlayInterval: 3000,autoPlaySelector:'#inpage_carousel'});" );
+wp_add_inline_script( 'backend_image_carousel_js', "window.addEventListener('load',()=>{if(null != document.querySelector('#inpage_carousel')){  new imageCarousel('#inpage_carousel',{callBack:el=>el.style.opacity = '1'}); } })" );
+
 
  }
 
@@ -120,9 +122,9 @@ public function carousel_widget_admin_page(){
 
 
 public function admin_carousel_demo(){
-echo '<h2> Carousel Demo</h2>';
-$this->in_page_carousel(array());
-
+echo '<fieldset style="border:1px dotted rgba(0,0,0,1);width:45%;float:left;display:inline-block;margin-top:20px;padding:20px;"> <legend>Carousel Demo</legend>';
+$this->in_page_carousel(array('height'=>'390','width'=>'1000'));
+echo "</fieldset>";
 }
 
 public function carouselSettingTabContent(){
@@ -190,7 +192,7 @@ public function carouselImageList(){
  ?>
  		<tr id="carousel_item_row_<?=$row['id']?>" >
 		 <td style='width:5%;' class='rowId'><?=$a?></td>
-		 <td style='width:40%;' onmouseenter="new ctcOverlayViewer(this);">
+		 <td style='width:40%;' class="overlay-image" >
 		 		<img style="cursor:pointer;width:60px;height:60px;" src='<?=$row['imageurl']?>' title='<?=$row['site']?>' >
 		 </td>
 		 <td style='width:10%;'><a href='<?=$row['url']?>' target="_blank" >URL</a></td>
@@ -249,7 +251,7 @@ endif;
 if( $base == 'carousel_widget' || !is_admin() ) :
 	global $wpdb; 
 	$height =  !empty($atts['height']) ? $atts['height'] : '600';
-	$width = !empty( $atts['width'] ) ? $atts['width'] : '1300';
+	$width = !empty( $atts['width'] ) ? $atts['width'] : '1200';
 	$auto_play =  'true'== $atts['auto_play'] ? $atts['auto_play'] : 'false';
     $table_name = $wpdb->prefix."url_table";
     $sql = "SELECT * FROM `".$table_name."` ;";

@@ -68,3 +68,9 @@ You can use this plugin to display images on sidebar and on page with option to 
 
 = 2.0.2 =
 *Deactivation bug fix
+
+= 2.5.0 =
+*Bug fixes
+*Added image carousel for inpage
+*Carousel widget href moved to center
+*CTC overlay update
