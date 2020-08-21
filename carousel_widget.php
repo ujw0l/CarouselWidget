@@ -2,8 +2,8 @@
 /*
 Plugin Name: Carousel widget
 Plugin URI: https://github.com/ujw0l/CarouselWidget
-Description: Roundabout carosel widget
-Version: 2.0.2
+Description: Carousel widget widget and Image carousel for page
+Version: 2.5.0
 Author: Ujwol Bastakoti
 Author URI: http://ujw0l.github.io/
 text-domain : carousel-widget
