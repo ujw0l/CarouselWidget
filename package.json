@@ -1,0 +1,28 @@
+{
+  "name": "carouselwidget",
+  "version": "2.5.0",
+  "description": "Wordpress plugin to display image in carousel",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ujw0l/CarouselWidget.git"
+  },
+  "keywords": [
+    "wordpress-plugin",
+    "carousel"
+  ],
+  "author": "UjW0L",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/ujw0l/CarouselWidget/issues"
+  },
+  "homepage": "https://wordpress.org/plugins/carousel-widget/",
+  "dependencies": {
+    "ctc-gallery-viewer": "^1.5.1",
+    "images-carousel": "^1.0.2",
+    "ctc-carousel-js": "^1.2.1"
+  }
+}
