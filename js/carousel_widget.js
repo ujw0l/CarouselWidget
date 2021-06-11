@@ -64,6 +64,7 @@ window.addEventListener('load', () => {
             xhttp.onload = function () {
                 if (this.status >= 200 && this.status < 400) {
                     var res = this.response;
+                    console.log(res);
                     if (false === res[0]) {
                         alert(res[1]);
                     } else {
