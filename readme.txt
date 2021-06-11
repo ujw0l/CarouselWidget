@@ -2,8 +2,8 @@
 Contributors: ujw0l
 Tags: carousel, widget, portfolio 
 Requires at least: 3.4+
-Tested up to: 5.5
-Stable tag: 2.5.0
+Tested up to: 5.7.2
+Stable tag: 2.7.0
 License: GPLv2
 
 Plugin that provides users option to display carousel widget for sidebar where user can add custom link for the site.
@@ -74,3 +74,6 @@ You can use this plugin to display images on sidebar and on page with option to 
 *Added image carousel for inpage
 *Carousel widget href moved to center
 *CTC overlay update
+
+= 2.6.0 =
+*Minor bug fixes and patches

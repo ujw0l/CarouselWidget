@@ -3,7 +3,7 @@
 Plugin Name: Carousel widget
 Plugin URI: https://github.com/ujw0l/CarouselWidget
 Description: Carousel widget widget and Image carousel for page
-Version: 2.5.0
+Version: 2.7.0
 Author: Ujwol Bastakoti
 Author URI: http://ujw0l.github.io/
 text-domain : carousel-widget
@@ -123,7 +123,7 @@ public function carousel_widget_admin_page(){
 
 public function admin_carousel_demo(){
 echo '<fieldset style="border:1px dotted rgba(0,0,0,1);width:45%;float:left;display:inline-block;margin-top:20px;padding:20px;"> <legend>Carousel Demo</legend>';
-$this->in_page_carousel(array('height'=>'390','width'=>'1000'));
+$this->in_page_carousel(array(  'height'=>'550','width'=>'1060'));
 echo "</fieldset>";
 }
 
@@ -155,12 +155,12 @@ public function carouselSettingTabContent(){
        <li > Use high resolution images for better result.
         	<i><br/>Media->Select Image OR use external image URL</i>
 	  </li>
+	  <li> * refers to required fields.</li>
       <li> Do not use filename with too many characters.</li>
-      <li> Duplicate entry will be rejecte by the plugin.</li>
+      <li style="color:red;"> Duplicate entry will be rejecte by the plugin.</li>
       <li> To display carousel on page use shortcode [inpage_carousel].</li>
-     <li>  To add custom height and/or width  [inpage_carousel heigth="custom height inpx" width="custom width in px"] </li>
-	 <li>  To set carousel on autoplay use  [inpage_carousel auto_play="true" ] </li>
-	 <li>To set height , width and autoplay of wodget, to settings of carousel widget.</li>
+     <li>  To add custom height and/or width  [inpage_carousel height="custom height in px" width="custom width in px"] </li>
+	 <li>To set height , width and autoplay of widget, to settings of carousel widget.</li>
       <li>Enjoy! More cool stuffs to follow.</li>
   </ol>
 
@@ -221,7 +221,7 @@ public function carouselImageList(){
 				if( $wpdb->insert_id > 0 ):
 					echo json_encode( array('true', __('Item Sucessfully added.','carousel-widget') ) );
 				else:
-					echo json_encode( array('false',__("Item couldn't be added.",'carousel-widget') ) );
+					echo json_encode( array('false',__("Item couldn't be added. \nCheck for duplicate entry.",'carousel-widget') ) );
 				endif;	
 		endif;	
 		wp_die();
@@ -248,20 +248,18 @@ if(is_admin() ):
 	$base =  $screen->parent_base;
 endif;
 
-if( $base == 'carousel_widget' || !is_admin() ) :
 	global $wpdb; 
-	$height =  !empty($atts['height']) ? $atts['height'] : '600';
-	$width = !empty( $atts['width'] ) ? $atts['width'] : '1200';
-	$auto_play =  'true'== $atts['auto_play'] ? $atts['auto_play'] : 'false';
+	$height =  isset($atts) && !empty($atts['height']) && is_numeric($atts['height'])? $atts['height'] : '317';
+	$width = isset($atts) && !empty( $atts['width'] ) && is_numeric($atts['width'])? $atts['width'] : '800';
     $table_name = $wpdb->prefix."url_table";
     $sql = "SELECT * FROM `".$table_name."` ;";
 	 $result = $wpdb->get_results($sql,ARRAY_A );
- 	echo "<div id ='inpage_carousel' data-auto-play='{$auto_play}'  class='inpage_carousel' style='opacity:0; height:{$height}px;width:{$width}px; '>"; 
+ 	echo "<div id ='inpage_carousel'  class='inpage_carousel' style='opacity:0; height:{$height}px;width:{$width}px; '>"; 
 	foreach ($result as $row): 
  	    		echo "<img src='{$row ['imageurl']}' title='{$row['site']}' data-site-url='{$row['url']}'  />"; 			
 	endforeach;
    echo "</div>";
-endif;
+
  	
  }
 
@@ -276,7 +274,7 @@ class carousel_widget extends WP_Widget {
 		parent::__construct(
 	 		'carousel_widget', // Base ID
 			'Carousel Widget', // Name
-			array( 'description' => __( 'Carousel Widget', 'text_domain' ), ) // Args
+			array( 'description' => __( 'Carousel Widget', 'carousel-widget'), ) // Args
 			
 		);
 
@@ -298,10 +296,7 @@ class carousel_widget extends WP_Widget {
 
 		extract( $args );
 		$title = apply_filters( 'widget_title', $instance['title'] );
-		$height = !empty($instance['carousel_height']) ? esc_attr($instance['carousel_height']) : '400';
-		$width = !empty($instance['carousel_width']) ? esc_attr($instance['carousel_width']) : '400';
 		$auto_play = '1' === $instance['carousel_auto_play'] ? 'true' : 'false';
-
 		echo $before_widget;
 		if ( ! empty( $title ) )
 			echo $before_title . $title . $after_title;
@@ -309,7 +304,7 @@ class carousel_widget extends WP_Widget {
 		$table_name = $wpdb->prefix."url_table";
 		$sql = "SELECT * FROM `".$table_name."`;";
 		$result = $wpdb->get_results($sql,ARRAY_A );
-		echo "<div id ='carousel_widget' data-auto-play='{$auto_play}'  class='inpage_carousel' style='opacity:0; height:{$height}px;width:{$width}px; '>"; 
+		echo "<div id ='carousel_widget' data-auto-play='{$auto_play}'  class='inpage_carousel' style='opacity:0;width:100%;height:380px '>"; 
 			foreach ($result as $row): 
  	    		 echo "<img src='{$row ['imageurl']}' title='{$row['site']}' data-site-url='{$row['url']}'  />"; 			
 			endforeach;
@@ -338,27 +333,17 @@ class carousel_widget extends WP_Widget {
 			$title = $instance[ 'title' ];
 		}
 		else {
-			$title = __( 'Carousel', 'text_domain' );
+			$title = __( 'Carousel', 'carousel-widget');
 		}
-		
+
 		?>
 		<p>
-		<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:' ); ?></label> 
+		<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:','carousel-widget' ); ?></label> 
 		<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
 		</p>
-		<p>
-				<label for="<?php echo $this->get_field_id( 'carousel_height' ); ?>"><?php _e( 'Height:' ); ?> <i> px</i></label> 
-				<input class="widefat" id="<?php echo $this->get_field_id( 'carousel_height' ); ?>" name="<?php echo $this->get_field_name( 'carousel_height' ); ?>" type="number" value="<?php echo esc_attr( $instance['carousel_height' ] ); ?>" />
-		    </p>
-		   <p>
-				<label for="<?php echo $this->get_field_id( 'carousel_width' ); ?>"><?php _e( 'Width:' ); ?> <i> px</i></label> 
-				
-				<input class="widefat" id="<?php echo $this->get_field_id( 'carousel_width' ); ?>" name="<?php echo $this->get_field_name( 'carousel_width' ); ?>" type="number" value="<?php echo esc_attr( $instance['carousel_width' ] ); ?>" />
-		    </p>
-		    <p>
 				<?php $auto_play =  '1' == $instance['carousel_auto_play' ] ? 'checked':'' ; ?>
-				<label for="<?php echo $this->get_field_id( 'carousel_auto_play' ); ?>"><?php _e( 'Autoplay slides :' ); ?></label>
-				<input <?= $auto_play?> class="widefat" id="<?php echo $this->get_field_id( 'carousel_auto_play' ); ?>" name="<?php echo $this->get_field_name( 'carousel_auto_play' ); ?>" type="checkbox"  value="1" />
+				<label for="<?php echo $this->get_field_id( 'carousel_auto_play' ); ?>"><?php _e( 'Autoplay slides :','carousel-widget' ); ?></label>
+				<input <?=$auto_play?> class="widefat" id="<?php echo $this->get_field_id( 'carousel_auto_play' ); ?>" name="<?php echo $this->get_field_name( 'carousel_auto_play' ); ?>" type="checkbox"  value="1" />
 		    </p>
 
 		
@@ -378,10 +363,9 @@ class carousel_widget extends WP_Widget {
 	 * @return array Updated safe values to be saved.
 	 */
 	public function update( $new_instance, $old_instance ) {
+
 		$instance = array();
 		$instance['title'] = strip_tags( $new_instance['title'] );
-		$instance['carousel_height'] = strip_tags( $new_instance['carousel_height'] );
-		$instance['carousel_width'] = strip_tags( $new_instance['carousel_width'] );
 		$instance['carousel_auto_play'] = strip_tags( $new_instance['carousel_auto_play'] );
        return $instance;
 	}
