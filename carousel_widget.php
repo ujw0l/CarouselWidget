@@ -213,16 +213,19 @@ public function carouselImageList(){
 
 		else: 
 			global $wpdb;
+			$imgUrl = esc_url_raw($_POST["imageurl"]);
+			$url = esc_url_raw($_POST['url']);
+			$site =  sanitize_text_field($_POST['site']);
+
 				$insert = $wpdb->insert( 
 					$wpdb->prefix."url_table", 
-					array('imageurl'=> $_POST["imageurl"],"url"=>$_POST['url'],'site'=>$_POST['site'])
+					array('imageurl' =>$imgUrl ,"url" =>$url ,'site'=>$site)
 				);
-
 				if( $wpdb->insert_id > 0 ):
 					echo json_encode( array('true', __('Item Sucessfully added.','carousel-widget') ) );
 				else:
 					echo json_encode( array('false',__("Item couldn't be added. \nCheck for duplicate entry.",'carousel-widget') ) );
-				endif;	
+				endif;
 		endif;	
 		wp_die();
  }
@@ -230,8 +233,10 @@ public function carouselImageList(){
 public function delete_carousel_item(){
 		global $wpdb;
 
+		$id =  absint($_POST['rowId']);
+
 		// Using where formatting.
-		$row_count = $wpdb->delete( $wpdb->prefix."url_table", array( 'id' => $_POST['rowId'] ), array( '%d' ) );
+		$row_count = $wpdb->delete( $wpdb->prefix."url_table", array( 'id' =>$id ), array( '%d' ) );
 		if($row_count >0 ):
 			echo json_encode(array('true', __('Item sucessfully deleted.','crousel-widget' ),$_POST['rowId'] ));
 		else: 
@@ -256,7 +261,7 @@ endif;
 	 $result = $wpdb->get_results($sql,ARRAY_A );
  	echo "<div id ='inpage_carousel'  class='inpage_carousel' style='opacity:0; height:{$height}px;width:{$width}px; '>"; 
 	foreach ($result as $row): 
- 	    		echo "<img src='{$row ['imageurl']}' title='{$row['site']}' data-site-url='{$row['url']}'  />"; 			
+ 	    		echo "<img src='".esc_url($row ['imageurl'])."' title='".esc_attr($row['site'])."' data-site-url='".esc_url($row['url'])."'  />"; 			
 	endforeach;
    echo "</div>";
 
@@ -304,9 +309,9 @@ class carousel_widget extends WP_Widget {
 		$table_name = $wpdb->prefix."url_table";
 		$sql = "SELECT * FROM `".$table_name."`;";
 		$result = $wpdb->get_results($sql,ARRAY_A );
-		echo "<div id ='carousel_widget' data-auto-play='{$auto_play}'  class='inpage_carousel' style='opacity:0;width:100%;height:380px '>"; 
+		echo "<div id ='carousel_widget' data-auto-play='".esc_attr($auto_play)."'  class='inpage_carousel' style='opacity:0;width:100%;height:380px '>"; 
 			foreach ($result as $row): 
- 	    		 echo "<img src='{$row ['imageurl']}' title='{$row['site']}' data-site-url='{$row['url']}'  />"; 			
+ 	    		 echo "<img src='".esc_url($row ['imageurl'])."' title='".esc_attr($row['site'])."' data-site-url='".esc_url($row['url'])."'  />"; 			
 			endforeach;
    echo "</div>";
 	

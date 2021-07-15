@@ -65,7 +65,7 @@ window.addEventListener('load', () => {
                 if (this.status >= 200 && this.status < 400) {
                     var res = this.response;
                     console.log(res);
-                    if (false === res[0]) {
+                    if ('false' === res[0]) {
                         alert(res[1]);
                     } else {
                         document.querySelector('#carousel_add_image').reset();
